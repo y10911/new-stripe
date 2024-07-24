@@ -45,7 +45,7 @@ def create_checkout_session():
             )
         elif purchase_type == "membership":
             # Create a Stripe product for the membership
-            product = stripe.Product.create(name=service_name + " Membership")
+            product = stripe.Product.create(name="Designteam Membership")
 
             # Create a Stripe price for the membership
             price = stripe.Price.create(
