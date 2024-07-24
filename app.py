@@ -35,6 +35,7 @@ def create_checkout_session():
                             'currency': 'usd',
                             'product_data': {
                                 'name': service_name,
+                                'description': f"{service_name} design, {quantity} {unit_type} at ${subtotal // quantity / 100} each.",
                             },
                             'unit_amount': subtotal // quantity,
                         },
@@ -48,7 +49,10 @@ def create_checkout_session():
             )
         elif purchase_type == "membership":
             # Create a Stripe product for the membership
-            product = stripe.Product.create(name="Designteam Membership")
+            product = stripe.Product.create(
+                name="Designteam Membership",
+                description=f"Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first {service_name.lower()} (up to {min_order} {unit_type}) free on us!",
+            )
 
             # Create a Stripe price for the membership
             price = stripe.Price.create(
@@ -68,13 +72,14 @@ def create_checkout_session():
 
             # If there's an additional fee, add it as a one-time charge
             if additional_fee > 0:
-                additional_quantity = quantity - min_order
+                additional_units = quantity - min_order
                 line_items.append(
                     {
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': f"{service_name} ({additional_quantity} additional {unit_type})",
+                                'name': f"{service_name} Additional Fee",
+                                'description': f"{additional_units} additional {unit_type} for {service_name.lower()}",
                             },
                             'unit_amount': additional_fee,
                         },
