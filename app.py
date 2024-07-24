@@ -1,11 +1,7 @@
 from flask import Flask, jsonify, request
 import stripe
-import logging
 
 app = Flask(__name__)
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 
 # Use a test secret key from Stripe for demo purposes
 stripe.api_key = 'sk_test_51Of6goKZ0oo6AUWAhVAGBbJgiaBVpVUkPLBQOdVE4RKnE38lsscMVc85p2j0s6EjAD0bBOxz4pUIAh13t3UwWiTe00kHiko9gx'
@@ -23,7 +19,7 @@ def create_checkout_session():
     service_name = data.get('serviceName')
     quantity = data.get('quantity')
     subtotal = data.get('subtotal')
-    
+
     try:
         # Create a Stripe Checkout session
         session = stripe.checkout.Session.create(
@@ -44,10 +40,10 @@ def create_checkout_session():
             success_url=data['success_url'],
             cancel_url=data['cancel_url'],
         )
-        logging.info(f"Session created: {session.id}")
+        print(f"Checkout Session ID: {session.id}")  # Log session ID
         return jsonify({'id': session.id})
     except Exception as e:
-        logging.error(f"Error creating session: {e}")
+        print(f"Error: {str(e)}")  # Log any errors
         return jsonify(error=str(e)), 403
 
 if __name__ == '__main__':
