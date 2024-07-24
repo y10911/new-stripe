@@ -20,6 +20,7 @@ def create_checkout_session():
     quantity = data.get('quantity')
     subtotal = data.get('subtotal')
     purchase_type = data.get('purchaseType')
+    additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
     try:
         if purchase_type == "one-time":
@@ -55,15 +56,33 @@ def create_checkout_session():
                 product=product.id,
             )
 
+            # Create line items for the session
+            line_items = [
+                {
+                    'price': price.id,
+                    'quantity': 1,
+                }
+            ]
+
+            # If there's an additional fee, add it as a one-time charge
+            if additional_fee > 0:
+                line_items.append(
+                    {
+                        'price_data': {
+                            'currency': 'usd',
+                            'product_data': {
+                                'name': f"{service_name} Additional Fee",
+                            },
+                            'unit_amount': additional_fee,
+                        },
+                        'quantity': 1,
+                    }
+                )
+
             # Create a Stripe Checkout session for membership
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
-                line_items=[
-                    {
-                        'price': price.id,
-                        'quantity': 1,
-                    }
-                ],
+                line_items=line_items,
                 mode='subscription',
                 success_url=data['success_url'],
                 cancel_url=data['cancel_url'],
