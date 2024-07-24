@@ -21,24 +21,25 @@ def create_checkout_session():
     subtotal = data.get('subtotal')
 
     try:
+        line_items = [{
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                    'name': service_name,
+                },
+                'unit_amount': subtotal // quantity,
+            },
+            'quantity': quantity,
+        }]
+
         # Create a Stripe Checkout session
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': service_name,
-                        },
-                        'unit_amount': subtotal // quantity,
-                    },
-                    'quantity': quantity,
-                }
-            ],
+            line_items=line_items,
             mode='payment',
             success_url=data['success_url'],
             cancel_url=data['cancel_url'],
+            allow_promotion_codes=True  # Add this line to allow promotion codes
         )
         print(f"Checkout Session ID: {session.id}")  # Log session ID
         return jsonify({'id': session.id})
