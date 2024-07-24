@@ -34,14 +34,15 @@ def create_checkout_session():
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': service_name,                            },
+                                'name': service_name,
+                            },
                             'unit_amount': subtotal // quantity,
                         },
                         'quantity': quantity,
                     }
                 ],
                 mode='payment',
-                success_url=data['success_url'],
+                success_url="https://try-design-team.webflow.io/payment-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True  # Add this line to allow promotion codes
             )
@@ -89,7 +90,7 @@ def create_checkout_session():
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='subscription',
-                success_url=data['success_url'],
+                success_url="https://try-design-team.webflow.io/membership-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True  # Add this line to allow promotion codes
             )
