@@ -19,28 +19,59 @@ def create_checkout_session():
     service_name = data.get('serviceName')
     quantity = data.get('quantity')
     subtotal = data.get('subtotal')
+    purchase_type = data.get('purchaseType')
 
     try:
-        line_items = [{
-            'price_data': {
-                'currency': 'usd',
-                'product_data': {
-                    'name': service_name,
-                },
-                'unit_amount': subtotal // quantity,
-            },
-            'quantity': quantity,
-        }]
+        if purchase_type == "one-time":
+            # Create a Stripe Checkout session for one-time purchase
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': 'usd',
+                            'product_data': {
+                                'name': service_name,
+                            },
+                            'unit_amount': subtotal // quantity,
+                        },
+                        'quantity': quantity,
+                    }
+                ],
+                mode='payment',
+                success_url=data['success_url'],
+                cancel_url=data['cancel_url'],
+                allow_promotion_codes=True  # Add this line to allow promotion codes
+            )
+        elif purchase_type == "membership":
+            # Create a Stripe product for the membership
+            product = stripe.Product.create(name=service_name + " Membership")
 
-        # Create a Stripe Checkout session
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=line_items,
-            mode='payment',
-            success_url=data['success_url'],
-            cancel_url=data['cancel_url'],
-            allow_promotion_codes=True  # Add this line to allow promotion codes
-        )
+            # Create a Stripe price for the membership
+            price = stripe.Price.create(
+                unit_amount=50000,  # $500 in cents
+                currency="usd",
+                recurring={"interval": "month"},
+                product=product.id,
+            )
+
+            # Create a Stripe Checkout session for membership
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price': price.id,
+                        'quantity': 1,
+                    }
+                ],
+                mode='subscription',
+                success_url=data['success_url'],
+                cancel_url=data['cancel_url'],
+                allow_promotion_codes=True  # Add this line to allow promotion codes
+            )
+        else:
+            return jsonify(error="Invalid purchase type"), 400
+
         print(f"Checkout Session ID: {session.id}")  # Log session ID
         return jsonify({'id': session.id})
     except Exception as e:
