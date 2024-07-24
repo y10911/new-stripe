@@ -74,7 +74,7 @@ def create_checkout_session():
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': f"{service_name} Additional Fee ({additional_units} additional {unit_type.lower()})",
+                                'name': f"{additional_units} {service_name} {unit_type.lower()}",
                             },
                             'unit_amount': additional_fee,
                         },
