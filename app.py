@@ -22,6 +22,7 @@ def create_checkout_session():
     min_order = data.get('minOrder', 1)  # Default to 1 if not provided
     purchase_type = data.get('purchaseType')
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
+    unit_type = data.get('unitType', 'units')  # Default to 'units' if not provided
 
     try:
         if purchase_type == "one-time":
@@ -67,13 +68,13 @@ def create_checkout_session():
 
             # If there's an additional fee, add it as a one-time charge
             if additional_fee > 0:
-                additional_pages = max(0, quantity - min_order)
+                additional_units = max(0, quantity - min_order)
                 line_items.append(
                     {
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': f"{service_name} Additional Fee ({additional_pages} additional {service_name.lower()} pages)",
+                                'name': f"{service_name} Additional Fee ({additional_units} additional {unit_type.lower()})",
                             },
                             'unit_amount': additional_fee,
                         },
