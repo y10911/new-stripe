@@ -4,7 +4,7 @@ import stripe
 app = Flask(__name__)
 
 # Use a test secret key from Stripe for demo purposes
-stripe.api_key = 'pk_test_51Of6goKZ0oo6AUWAwq11Y92ot4HUjcmfnW10x5absTA0SO2dQwRXmU608gHoYyyso1ID1wyX7sWKpSWPFA24UiQz00jg2UOGkT'
+stripe.api_key = 'sk_test_51Of6goKZ0oo6AUWAhVAGBbJgiaBVpVUkPLBQOdVE4RKnE38lsscMVc85p2j0s6EjAD0bBOxz4pUIAh13t3UwWiTe00kHiko9gx'
 
 @app.after_request
 def add_cors_headers(response):
