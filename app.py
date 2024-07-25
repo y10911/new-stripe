@@ -50,7 +50,7 @@ def create_checkout_session():
                     }
                 ],
                 mode='payment',
-                success_url=data['success_url'],
+                success_url="https://try-design-team.webflow.io/payment-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True,  # Add this line to allow promotion codes
                 metadata=metadata,  # Add metadata
@@ -101,7 +101,7 @@ def create_checkout_session():
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='subscription',
-                success_url=data['success_url'],
+                success_url="https://try-design-team.webflow.io/membership-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True,  # Add this line to allow promotion codes
                 metadata=metadata,  # Add metadata
