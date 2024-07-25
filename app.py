@@ -25,6 +25,14 @@ def create_checkout_session():
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
     try:
+        metadata = {
+            'purchase_type': purchase_type,
+            'service_name': service_name,
+            'quantity': str(quantity),
+            'min_order': str(min_order),
+            'unit_type': unit_type
+        }
+
         if purchase_type == "one-time":
             # Create a Stripe Checkout session for one-time purchase
             session = stripe.checkout.Session.create(
@@ -42,16 +50,17 @@ def create_checkout_session():
                     }
                 ],
                 mode='payment',
-                success_url="https://try-design-team.webflow.io/payment-success",
+                success_url=data['success_url'],
                 cancel_url=data['cancel_url'],
-                allow_promotion_codes=True  # Add this line to allow promotion codes
+                allow_promotion_codes=True,  # Add this line to allow promotion codes
+                metadata=metadata,  # Add metadata
+                client_reference_id=service_name  # Pass the service name as client reference
             )
         elif purchase_type == "membership":
-            # Create a Stripe product for the membership
+            # Create a Stripe product for the membership with a description
             product = stripe.Product.create(
                 name="Designteam Membership",
                 description=f"Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first {service_name} (up to {min_order} {unit_type}) free on us!"
-
             )
 
             # Create a Stripe price for the membership
@@ -78,8 +87,8 @@ def create_checkout_session():
                         'price_data': {
                             'currency': 'usd',
                             'product_data': {
-                                'name': f"{service_name}",
-                                'description': f"{additional_units} {unit_type}",
+                                'name': f"{service_name} Additional Fee",
+                                'description': f"{additional_units} additional {unit_type}",
                             },
                             'unit_amount': additional_fee,
                         },
@@ -92,9 +101,11 @@ def create_checkout_session():
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='subscription',
-                success_url="https://try-design-team.webflow.io/membership-success",
+                success_url=data['success_url'],
                 cancel_url=data['cancel_url'],
-                allow_promotion_codes=True  # Add this line to allow promotion codes
+                allow_promotion_codes=True,  # Add this line to allow promotion codes
+                metadata=metadata,  # Add metadata
+                client_reference_id=service_name  # Pass the service name as client reference
             )
         else:
             return jsonify(error="Invalid purchase type"), 400
