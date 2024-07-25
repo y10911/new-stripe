@@ -50,6 +50,8 @@ def create_checkout_session():
             # Create a Stripe product for the membership
             product = stripe.Product.create(
                 name="Designteam Membership",
+                description=f"Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first {service_name} (up to {min_order} {unit_type}) free on us!"
+
             )
 
             # Create a Stripe price for the membership
