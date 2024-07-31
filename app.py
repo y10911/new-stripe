@@ -24,7 +24,15 @@ def create_checkout_session():
     unit_type = data.get('unitType')
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
-    print(f"Received data: {data}")
+    # Print the received values
+    print(f"Received values: subtotal={subtotal}, additional_fee={additional_fee}")
+
+    # Ensure values are integers
+    try:
+        subtotal = int(subtotal)
+        additional_fee = int(additional_fee)
+    except ValueError:
+        return jsonify(error="Invalid subtotal or additional fee"), 400
 
     try:
         if purchase_type == "one-time":
