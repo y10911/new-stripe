@@ -70,6 +70,22 @@ def create_checkout_session():
                 }
             ]
 
+            # Add the free order as a line item if membership price is free
+            if subtotal <= 50000:
+                line_items.append(
+                    {
+                        'price_data': {
+                            'currency': 'usd',
+                            'product_data': {
+                                'name': f"{service_name} (Free)",
+                                'description': f"{quantity} {unit_type}",
+                            },
+                            'unit_amount': 0,
+                        },
+                        'quantity': quantity,
+                    }
+                )
+
             # If there's an additional fee, add it as a one-time charge
             if additional_fee > 0:
                 additional_units = quantity - min_order
