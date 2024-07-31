@@ -8,7 +8,7 @@ stripe.api_key = 'sk_test_51Of6goKZ0oo6AUWAhVAGBbJgiaBVpVUkPLBQOdVE4RKnE38lsscMV
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://try-design-team.webflow.io/')
+    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://www.designteam.co/')
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
     return response
@@ -42,7 +42,7 @@ def create_checkout_session():
                     }
                 ],
                 mode='payment',
-                success_url="https://try-design-team.webflow.io/payment-success",
+                success_url="https://www.designteam.co/payment-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True,  # Add this line to allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
@@ -51,7 +51,7 @@ def create_checkout_session():
             # Create a Stripe product for the membership with a description
             product = stripe.Product.create(
                 name="Designteam Membership",
-                description="Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first catalog (up to 10 pages) free on us!"
+                description=f"Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first {service_name} (up to {min_order} {unit_type}) free on us!"
             )
 
             # Create a Stripe price for the membership
@@ -92,7 +92,7 @@ def create_checkout_session():
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='subscription',
-                success_url="https://try-design-team.webflow.io/membership-success",
+                success_url="https://www.designteam.co/membership-success",
                 cancel_url=data['cancel_url'],
                 allow_promotion_codes=True,  # Add this line to allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
