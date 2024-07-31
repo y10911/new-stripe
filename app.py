@@ -25,7 +25,7 @@ def create_checkout_session():
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
     # Print the received values
-    print(f"Received values: subtotal={subtotal}, additional_fee={additional_fee}")
+    print(f"Received values: service_name={service_name}, quantity={quantity}, subtotal={subtotal}, purchase_type={purchase_type}, min_order={min_order}, unit_type={unit_type}, additional_fee={additional_fee}")
 
     # Ensure values are integers
     try:
@@ -82,6 +82,7 @@ def create_checkout_session():
 
             # Add the free order as a line item if membership price is free
             if subtotal <= 50000:
+                print(f"Adding free line item for {quantity} {unit_type}")
                 line_items.append(
                     {
                         'price_data': {
