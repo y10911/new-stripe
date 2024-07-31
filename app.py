@@ -24,6 +24,8 @@ def create_checkout_session():
     unit_type = data.get('unitType')
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
+    print(f"Received data: {data}")
+
     try:
         if purchase_type == "one-time":
             # Create a Stripe Checkout session for one-time purchase
