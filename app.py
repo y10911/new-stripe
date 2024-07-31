@@ -22,17 +22,10 @@ def create_checkout_session():
     purchase_type = data.get('purchaseType')
     min_order = data.get('minOrder')
     unit_type = data.get('unitType')
+    base_price = data.get('basePrice')  # Get base price
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
-    # Print the received values
-    print(f"Received values: service_name={service_name}, quantity={quantity}, subtotal={subtotal}, purchase_type={purchase_type}, min_order={min_order}, unit_type={unit_type}, additional_fee={additional_fee}")
-
-    # Ensure values are integers
-    try:
-        subtotal = int(subtotal)
-        additional_fee = int(additional_fee)
-    except ValueError:
-        return jsonify(error="Invalid subtotal or additional fee"), 400
+    print(f"Received values: service_name={service_name}, quantity={quantity}, subtotal={subtotal}, purchase_type={purchase_type}, min_order={min_order}, unit_type={unit_type}, base_price={base_price}, additional_fee={additional_fee}")
 
     try:
         if purchase_type == "one-time":
@@ -80,8 +73,8 @@ def create_checkout_session():
                 }
             ]
 
-            # Add the free order as a line item if membership price is free
-            if subtotal <= 50000:
+            # Add the free order as a line item if the total is less than or equal to base_price * min_order
+            if subtotal <= (base_price * min_order):
                 print(f"Adding free line item for {quantity} {unit_type}")
                 line_items.append(
                     {
@@ -134,4 +127,4 @@ def create_checkout_session():
         return jsonify(error=str(e)), 403
 
 if __name__ == '__main__':
-    app.run(port=4242)
+    app.run(port=4242, debug=True)
