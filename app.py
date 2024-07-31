@@ -74,7 +74,7 @@ def create_checkout_session():
             ]
 
             # Add the free order as a line item if the total is less than or equal to base_price * min_order
-            if subtotal <= (base_price * min_order):
+            if subtotal <= (base_price * min_order * 100):  # Ensure subtotal is in cents
                 print(f"Adding free line item for {quantity} {unit_type}")
                 line_items.append(
                     {
