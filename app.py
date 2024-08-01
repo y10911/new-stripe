@@ -8,7 +8,7 @@ stripe.api_key = 'sk_live_51Of6goKZ0oo6AUWAAuUXwTVID3cMDZlMMvYq64ylPn3G3kXi3lpAd
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://www.designteam.co/')
+    response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
     return response
