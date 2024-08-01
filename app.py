@@ -4,26 +4,17 @@ import stripe
 app = Flask(__name__)
 
 # Use a test secret key from Stripe for demo purposes
-<<<<<<< HEAD
 stripe.api_key = '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'
 
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://www.designteam.co/')
-=======
-stripe.api_key = 'pk_test_51Of6goKZ0oo6AUWAwq11Y92ot4HUjcmfnW10x5absTA0SO2dQwRXmU608gHoYyyso1ID1wyX7sWKpSWPFA24UiQz00jg2UOGkT'
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://try-design-team.webflow.io/')
->>>>>>> da5c140 (initial commit)
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
     return response
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-<<<<<<< HEAD
     data = request.get_json()
     service_name = data.get('serviceName')
     quantity = data.get('quantity')
@@ -137,10 +128,3 @@ def create_checkout_session():
 
 if __name__ == '__main__':
     app.run(port=4242, debug=True)
-=======
-    # Mock data for demo purposes
-    return jsonify({'id': 'cs_test_...'})
-
-if __name__ == '__main__':
-    app.run(port=4242)
->>>>>>> da5c140 (initial commit)
