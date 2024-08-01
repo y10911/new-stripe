@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 import stripe
 
 app = Flask(__name__)
@@ -39,60 +39,36 @@ def create_checkout_session():
                             'product_data': {
                                 'name': service_name,
                             },
-                            'unit_amount': subtotal // quantity,
+                            'unit_amount': int(round(subtotal * 100)),  # Convert to cents
                         },
                         'quantity': quantity,
                     }
                 ],
                 mode='payment',
-                success_url="https://www.designteam.co/payment-success",
+                success_url="https://www.designteam.co/success",
                 cancel_url=data['cancel_url'],
-                allow_promotion_codes=True,  # Add this line to allow promotion codes
+                allow_promotion_codes=True,  # Allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
             )
-        elif purchase_type == "membership":
-            # Create a Stripe product for the membership with a description
-            product = stripe.Product.create(
-                name="Designteam Membership",
-                description=f"Enjoy discounts on all orders and a $500 credit per month for any design with our membership. Get your first {service_name} (up to {min_order} {unit_type}) free on us!"
-            )
+        elif purchase_type == "subscription":
+            # Calculate additional units
+            additional_units = quantity - min_order
 
-            # Create a Stripe price for the membership
-            price = stripe.Price.create(
-                unit_amount=50000,  # $500 in cents
-                currency="usd",
-                recurring={"interval": "month"},
-                product=product.id,
-            )
-
-            # Create line items for the session
+            # Append additional fee line item if applicable
             line_items = [
                 {
-                    'price': price.id,
-                    'quantity': 1,
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': service_name,
+                        },
+                        'unit_amount': int(round(base_price * 100)),  # Convert to cents
+                    },
+                    'quantity': min_order,
                 }
             ]
 
-            # Add the free order as a line item if the total is less than or equal to base_price * min_order
-            if subtotal <= (base_price * min_order * 100):  # Ensure subtotal is in cents
-                print(f"Adding free line item for {quantity} {unit_type}")
-                line_items.append(
-                    {
-                        'price_data': {
-                            'currency': 'usd',
-                            'product_data': {
-                                'name': f"{service_name} (Free)",
-                                'description': f"{quantity} {unit_type}",
-                            },
-                            'unit_amount': 0,
-                        },
-                        'quantity': quantity,
-                    }
-                )
-
-            # If there's an additional fee, add it as a one-time charge
-            if additional_fee > 0:
-                additional_units = quantity - min_order
+            if additional_units > 0:
                 line_items.append(
                     {
                         'price_data': {
@@ -101,30 +77,33 @@ def create_checkout_session():
                                 'name': f"{service_name} Additional Fee",
                                 'description': f"{additional_units} additional {unit_type}",
                             },
-                            'unit_amount': additional_fee,
+                            'unit_amount': int(round(additional_fee * 100)),  # Convert to cents
                         },
                         'quantity': 1,
                     }
                 )
 
-            # Create a Stripe Checkout session for membership
+            # Create a Stripe Checkout session for subscription
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='subscription',
                 success_url="https://www.designteam.co/membership-success",
                 cancel_url=data['cancel_url'],
-                allow_promotion_codes=True,  # Add this line to allow promotion codes
+                allow_promotion_codes=True,  # Allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
             )
         else:
             return jsonify(error="Invalid purchase type"), 400
 
-        print(f"Checkout Session ID: {session.id}")  # Log session ID
-        return jsonify({'id': session.id})
+        return jsonify(session_id=session.id), 200
+
+    except stripe.error.StripeError as e:
+        # Handle Stripe API errors
+        return jsonify(error=str(e)), 400
     except Exception as e:
-        print(f"Error: {str(e)}")  # Log any errors
-        return jsonify(error=str(e)), 403
+        # Handle other errors
+        return jsonify(error="An error occurred while creating the session"), 500
 
 if __name__ == '__main__':
-    app.run(port=4242, debug=True)
+    app.run(debug=True)
