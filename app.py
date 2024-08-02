@@ -83,6 +83,7 @@ def create_checkout_session():
                     }
                 )
 
+
             # Create a Stripe Checkout session for subscription
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
