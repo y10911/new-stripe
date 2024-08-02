@@ -40,7 +40,7 @@ def create_checkout_session():
                             'product_data': {
                                 'name': service_name,
                             },
-                            'unit_amount': subtotal // quantity,
+                            'unit_amount': int(subtotal // quantity),  # Ensure unit_amount is an integer
                         },
                         'quantity': quantity,
                     }
@@ -102,7 +102,7 @@ def create_checkout_session():
                                 'name': f"{service_name} Additional Fee",
                                 'description': f"{additional_units} additional {unit_type}",
                             },
-                            'unit_amount': additional_fee,
+                            'unit_amount': int(additional_fee),  # Ensure unit_amount is an integer
                         },
                         'quantity': 1,
                     }
