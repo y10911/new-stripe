@@ -1,7 +1,11 @@
+import logging
 from flask import Flask, request, jsonify
 import stripe
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
 # Use a test secret key from Stripe for demo purposes
 stripe.api_key = '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'
@@ -25,7 +29,7 @@ def create_checkout_session():
     base_price = data.get('basePrice')  # Get base price
     additional_fee = data.get('additionalFee', 0)  # Additional fee if any
 
-    print(f"Received values: service_name={service_name}, quantity={quantity}, subtotal={subtotal}, purchase_type={purchase_type}, min_order={min_order}, unit_type={unit_type}, base_price={base_price}, additional_fee={additional_fee}")
+    logging.debug(f"Received values: service_name={service_name}, quantity={quantity}, subtotal={subtotal}, purchase_type={purchase_type}, min_order={min_order}, unit_type={unit_type}, base_price={base_price}, additional_fee={additional_fee}")
 
     try:
         if purchase_type == "one-time":
@@ -50,6 +54,7 @@ def create_checkout_session():
                 allow_promotion_codes=True,  # Allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
             )
+            logging.info(f"Created one-time payment session: {session.id}")
         elif purchase_type == "subscription":
             # Calculate additional units
             additional_units = quantity - min_order
@@ -83,7 +88,6 @@ def create_checkout_session():
                     }
                 )
 
-
             # Create a Stripe Checkout session for subscription
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -94,16 +98,20 @@ def create_checkout_session():
                 allow_promotion_codes=True,  # Allow promotion codes
                 client_reference_id=service_name  # Pass the service name as client reference
             )
+            logging.info(f"Created subscription session: {session.id}")
         else:
+            logging.error("Invalid purchase type")
             return jsonify(error="Invalid purchase type"), 400
 
         return jsonify(session_id=session.id), 200
 
     except stripe.error.StripeError as e:
         # Handle Stripe API errors
+        logging.error(f"Stripe error: {str(e)}")
         return jsonify(error=str(e)), 400
     except Exception as e:
         # Handle other errors
+        logging.error(f"An error occurred: {str(e)}")
         return jsonify(error="An error occurred while creating the session"), 500
 
 if __name__ == '__main__':
